@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -34,6 +34,35 @@ async function run() {
     app.post("/addtoy", async (req, res) => {
       const data = req.body;
       const result = await carCollection.insertOne(data);
+      res.send(result);
+    });
+
+    //   Get all toys
+    app.get("/alltoy", async (req, res) => {
+      const cars = carCollection.find();
+      const result = await cars.toArray();
+      res.send(result);
+    });
+
+    //   get a specific toy and update
+    app.patch("/toy/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedToyData = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          ...updatedToyData,
+        },
+      };
+      const result = await carCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
+    //   Delete a specific toy
+    app.delete("/toy/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const result = await carCollection.deleteOne(filter);
       res.send(result);
     });
 
