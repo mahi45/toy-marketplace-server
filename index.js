@@ -21,60 +21,89 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+  //   try {
+  // Connect the client to the server	(optional starting in v4.7)
+  await client.connect();
 
-    const carCollection = client.db("sportscar").collection("cars");
-    app.get("/test", (req, res) => {
-      res.send("All is well");
-    });
+  const carCollection = client.db("sportscar").collection("cars");
 
-    //   Insert a toy to DB
-    app.post("/addtoy", async (req, res) => {
-      const data = req.body;
-      const result = await carCollection.insertOne(data);
-      res.send(result);
-    });
+  const indexKeys = { toyname: 1 };
+  const indexOptions = { name: "toyname" };
+  const result = await carCollection.createIndex(indexKeys, indexOptions);
 
-    //   Get all toys
-    app.get("/alltoy", async (req, res) => {
-      const cars = carCollection.find();
-      const result = await cars.toArray();
-      res.send(result);
-    });
+  app.get("/searchToy/:text", async (req, res) => {
+    const searchText = req.params.text;
+    const result = await carCollection
+      .find({
+        $or: [
+          {
+            toyname: { $regex: searchText, $options: "i" },
+          },
+        ],
+      })
+      .toArray();
+    res.send(result);
+  });
 
-    //   get a specific toy and update
-    app.patch("/toy/:id", async (req, res) => {
-      const id = req.params.id;
-      const updatedToyData = req.body;
-      const filter = { _id: new ObjectId(id) };
-      const updatedDoc = {
-        $set: {
-          ...updatedToyData,
-        },
-      };
-      const result = await carCollection.updateOne(filter, updatedDoc);
-      res.send(result);
-    });
+  //   Insert a toy to DB
+  app.post("/addtoy", async (req, res) => {
+    const data = req.body;
+    const result = await carCollection.insertOne(data);
+    res.send(result);
+  });
 
-    //   Delete a specific toy
-    app.delete("/toy/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const result = await carCollection.deleteOne(filter);
-      res.send(result);
-    });
+  //   Get all toys
+  app.get("/alltoy", async (req, res) => {
+    const cars = carCollection.find();
+    const result = await cars.toArray();
+    res.send(result);
+  });
 
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
-  }
+  //   get only customer own toy
+  app.get("/mytoys/:email", async (req, res) => {
+    console.log(req.params.email);
+    const result = await carCollection
+      .find({ selleremail: req.params.email })
+      .toArray();
+    res.send(result);
+  });
+
+  //   get a specific toy and update
+  app.get("/toy/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await carCollection.findOne(query);
+    res.send(result);
+  });
+
+  app.patch("/toy/:id", async (req, res) => {
+    const id = req.params.id;
+    const updatedToyData = req.body;
+    const filter = { _id: new ObjectId(id) };
+    const updatedDoc = {
+      $set: {
+        ...updatedToyData,
+      },
+    };
+    const result = await carCollection.updateOne(filter, updatedDoc);
+    res.send(result);
+  });
+
+  //   Delete a specific toy
+  app.delete("/toy/:id", async (req, res) => {
+    const id = req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const result = await carCollection.deleteOne(filter);
+    res.send(result);
+  });
+
+  // Send a ping to confirm a successful connection
+  await client.db("admin").command({ ping: 1 });
+  console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  //   } finally {
+  //     // Ensures that the client will close when you finish/error
+  //     // await client.close();
+  //   }
 }
 run().catch(console.dir);
 
