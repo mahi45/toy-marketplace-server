@@ -59,33 +59,6 @@ async function run() {
     const result = await cars.toArray();
     res.send(result);
   });
-  // API for home page category wise product show
-  app.get("/alltoy/:text", async (req, res) => {
-    console.log(req.params.text);
-    if (
-      req.params.text == "Chevrolet Camaro ZL1" ||
-      req.params.text == "Chevrolet Corvette" ||
-      req.params.text == "Chevrolet Corvette Z06" ||
-      req.params.text == "Ford Mustang"
-    ) {
-      const result = await carCollection
-        .find({ toysubcat: req.params.text })
-        .toArray();
-      return res.send(result);
-    }
-    const cars = carCollection.find();
-    const result = await cars.toArray();
-    res.send(result);
-  });
-
-  //   get only customer own toy
-  app.get("/mytoys/:email", async (req, res) => {
-    console.log(req.params.email);
-    const result = await carCollection
-      .find({ selleremail: req.params.email })
-      .toArray();
-    res.send(result);
-  });
 
   //   get a specific toy
   app.get("/toy/:id", async (req, res) => {
@@ -114,6 +87,34 @@ async function run() {
     const id = req.params.id;
     const filter = { _id: new ObjectId(id) };
     const result = await carCollection.deleteOne(filter);
+    res.send(result);
+  });
+
+  //   get only customer own toy
+  app.get("/mytoys/:email", async (req, res) => {
+    console.log(req.params.email);
+    const result = await carCollection
+      .find({ selleremail: req.params.email })
+      .toArray();
+    res.send(result);
+  });
+
+  // API for home page category wise product show
+  app.get("/alltoy/:text", async (req, res) => {
+    console.log(req.params.text);
+    if (
+      req.params.text == "Chevrolet Camaro ZL1" ||
+      req.params.text == "Chevrolet Corvette" ||
+      req.params.text == "Chevrolet Corvette Z06" ||
+      req.params.text == "Ford Mustang"
+    ) {
+      const result = await carCollection
+        .find({ toysubcat: req.params.text })
+        .toArray();
+      return res.send(result);
+    }
+    const cars = carCollection.find();
+    const result = await cars.toArray();
     res.send(result);
   });
 
