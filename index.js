@@ -31,6 +31,7 @@ async function run() {
   const indexOptions = { name: "toyname" };
   const result = await carCollection.createIndex(indexKeys, indexOptions);
 
+  // Search toy from all toy page
   app.get("/searchToy/:text", async (req, res) => {
     const searchText = req.params.text;
     const result = await carCollection
