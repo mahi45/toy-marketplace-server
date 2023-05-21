@@ -59,6 +59,24 @@ async function run() {
     res.send(result);
   });
 
+  app.get("/alltoy/:text", async (req, res) => {
+    console.log(req.params.text);
+    if (
+      req.params.text == "Chevrolet Camaro ZL1" ||
+      req.params.text == "Chevrolet Corvette" ||
+      req.params.text == "Chevrolet Corvette Z06" ||
+      req.params.text == "Ford Mustang"
+    ) {
+      const result = await carCollection
+        .find({ toysubcat: req.params.text })
+        .toArray();
+      return res.send(result);
+    }
+    const cars = carCollection.find();
+    const result = await cars.toArray();
+    res.send(result);
+  });
+
   //   get only customer own toy
   app.get("/mytoys/:email", async (req, res) => {
     console.log(req.params.email);
