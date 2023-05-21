@@ -8,6 +8,13 @@ const port = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+// const corsConfig = {
+//   origin: "",
+//   credentials: true,
+//   methods: ["GET", "POST", "PUT", "DELETE"],
+// };
+// app.use(cors(corsConfig));
+// app.options("", cors(corsConfig));
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.fxalyfy.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -21,110 +28,110 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
-  //   try {
-  // Connect the client to the server	(optional starting in v4.7)
-  await client.connect();
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    // client.connect();
 
-  const carCollection = client.db("sportscar").collection("cars");
+    const carCollection = client.db("sportscar").collection("cars");
 
-  const indexKeys = { toyname: 1 };
-  const indexOptions = { name: "toyname" };
-  const result = await carCollection.createIndex(indexKeys, indexOptions);
+    // const indexKeys = { toyname: 1 };
+    // const indexOptions = { name: "toyname" };
+    // const result = await carCollection.createIndex(indexKeys, indexOptions);
 
-  // Search toy from all toy page
-  app.get("/searchToy/:text", async (req, res) => {
-    const searchText = req.params.text;
-    const result = await carCollection
-      .find({
-        $or: [
-          {
-            toyname: { $regex: searchText, $options: "i" },
-          },
-        ],
-      })
-      .toArray();
-    res.send(result);
-  });
-
-  //   Insert a toy to DB
-  app.post("/addtoy", async (req, res) => {
-    const data = req.body;
-    const result = await carCollection.insertOne(data);
-    res.send(result);
-  });
-
-  //   Get all toys
-  app.get("/alltoy", async (req, res) => {
-    const cars = carCollection.find();
-    const result = await cars.toArray();
-    res.send(result);
-  });
-
-  //   get a specific toy
-  app.get("/toy/:id", async (req, res) => {
-    const id = req.params.id;
-    const query = { _id: new ObjectId(id) };
-    const result = await carCollection.findOne(query);
-    res.send(result);
-  });
-
-  // Update a specific toy
-  app.patch("/toy/:id", async (req, res) => {
-    const id = req.params.id;
-    const updatedToyData = req.body;
-    const filter = { _id: new ObjectId(id) };
-    const updatedDoc = {
-      $set: {
-        ...updatedToyData,
-      },
-    };
-    const result = await carCollection.updateOne(filter, updatedDoc);
-    res.send(result);
-  });
-
-  //   Delete a specific toy
-  app.delete("/toy/:id", async (req, res) => {
-    const id = req.params.id;
-    const filter = { _id: new ObjectId(id) };
-    const result = await carCollection.deleteOne(filter);
-    res.send(result);
-  });
-
-  //   get only customer own toy
-  app.get("/mytoys/:email", async (req, res) => {
-    console.log(req.params.email);
-    const result = await carCollection
-      .find({ selleremail: req.params.email })
-      .toArray();
-    res.send(result);
-  });
-
-  // API for home page category wise product show
-  app.get("/alltoy/:text", async (req, res) => {
-    console.log(req.params.text);
-    if (
-      req.params.text == "Chevrolet Camaro ZL1" ||
-      req.params.text == "Chevrolet Corvette" ||
-      req.params.text == "Chevrolet Corvette Z06" ||
-      req.params.text == "Ford Mustang"
-    ) {
+    // Search toy from all toy page
+    app.get("/searchToy/:text", async (req, res) => {
+      const searchText = req.params.text;
       const result = await carCollection
-        .find({ toysubcat: req.params.text })
+        .find({
+          $or: [
+            {
+              toyname: { $regex: searchText, $options: "i" },
+            },
+          ],
+        })
         .toArray();
-      return res.send(result);
-    }
-    const cars = carCollection.find();
-    const result = await cars.toArray();
-    res.send(result);
-  });
+      res.send(result);
+    });
 
-  // Send a ping to confirm a successful connection
-  await client.db("admin").command({ ping: 1 });
-  console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  //   } finally {
-  //     // Ensures that the client will close when you finish/error
-  //     // await client.close();
-  //   }
+    //   Insert a toy to DB
+    app.post("/addtoy", async (req, res) => {
+      const data = req.body;
+      const result = await carCollection.insertOne(data);
+      res.send(result);
+    });
+
+    //   Get all toys
+    app.get("/alltoy", async (req, res) => {
+      const cars = carCollection.find();
+      const result = await cars.toArray();
+      res.send(result);
+    });
+
+    //   get a specific toy
+    app.get("/toy/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await carCollection.findOne(query);
+      res.send(result);
+    });
+
+    // Update a specific toy
+    app.patch("/toy/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedToyData = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          ...updatedToyData,
+        },
+      };
+      const result = await carCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
+    //   Delete a specific toy
+    app.delete("/toy/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const result = await carCollection.deleteOne(filter);
+      res.send(result);
+    });
+
+    //   get only customer own toy
+    app.get("/mytoys/:email", async (req, res) => {
+      console.log(req.params.email);
+      const result = await carCollection
+        .find({ selleremail: req.params.email })
+        .toArray();
+      res.send(result);
+    });
+
+    // API for home page category wise product show
+    app.get("/alltoy/:text", async (req, res) => {
+      console.log(req.params.text);
+      if (
+        req.params.text == "Chevrolet Camaro ZL1" ||
+        req.params.text == "Chevrolet Corvette" ||
+        req.params.text == "Chevrolet Corvette Z06" ||
+        req.params.text == "Ford Mustang"
+      ) {
+        const result = await carCollection
+          .find({ toysubcat: req.params.text })
+          .toArray();
+        return res.send(result);
+      }
+      const cars = carCollection.find();
+      const result = await cars.toArray();
+      res.send(result);
+    });
+
+    // Send a ping to confirm a successful connection
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    //   // Ensures that the client will close when you finish/error
+    //   // await client.close();
+  }
 }
 run().catch(console.dir);
 
