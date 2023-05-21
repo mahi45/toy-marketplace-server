@@ -58,7 +58,7 @@ async function run() {
     const result = await cars.toArray();
     res.send(result);
   });
-
+  // API for home page category wise product show
   app.get("/alltoy/:text", async (req, res) => {
     console.log(req.params.text);
     if (
